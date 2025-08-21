@@ -1,0 +1,9 @@
+Package: com.Homy.app
+Name: Homy
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome SwiftUI application!
+Maintainer: jurre111
+Author: jurre111
+Section: Utilities
+Depends: firmware (>= 14.0)
