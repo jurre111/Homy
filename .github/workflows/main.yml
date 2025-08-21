@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Checkout theos/theos
+        uses: actions/checkout@main
+        with:
+          repository: theos/theos
+          ref: master
+          submodules: recursive
+          path: theos
+
+      - name: Checkout theos/sdks
+        uses: actions/checkout@main
+        with:
+          repository: theos/sdks
+          ref: master
+          nugget-checkout: iPhoneOS16.5.sdk
+          path: theos/sdks
+
+      - name: Ensure main utils are installed
+        uses: dhinakg/procursus-action@main
+        with:
+          packages: coreutils make xz ldid
+          
+      - name: Build
+        run: |
+          export THEOS=theos
+
+          git submodule update --init
+          bash ipabuild.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: artifact
+          path: build/*.ipa
+      - name: Move IPA to root of repository
+        run: |
+          mkdir -p downloads
+          mv build/*.ipa "$GITHUB_WORKSPACE/downloads/"
+      - name: Commit and push IPA to repository
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add "$GITHUB_WORKSPACE/downloads/*.ipa"
+          git commit -m "Add IPA build artifact"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
