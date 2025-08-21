@@ -22,12 +22,11 @@ jobs:
           path: theos
 
       - name: Checkout theos/sdks
-        uses: actions/checkout@main
-        with:
-          repository: theos/sdks
-          ref: master
-          nugget-checkout: iPhoneOS16.5.sdk
-          path: theos/sdks
+        run: |
+          git clone https://github.com/theos/sdks.git theos/sdks
+          cd theos/sdks
+          git checkout master
+
 
       - name: Ensure main utils are installed
         uses: dhinakg/procursus-action@main
